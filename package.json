@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build": "echo Build skipped - dist is pre-built",
     "install:all": "cd frontend && npm install && cd ../backend && npm install",
     "start": "node backend/dist/index.js"
   },
