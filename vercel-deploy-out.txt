@@ -1,0 +1,32 @@
+Retrieving project…
+Deploying oee-platform-s-projects/manufacturing-oee-platform
+Uploading [--------------------] (0.0B/295B)
+Uploading [=====---------------] (83.0B/295B)
+Uploading [====================] (295.0B/295B)
+  Inspect     https://vercel.com/oee-platform-s-projects/manufacturing-oee-platform/HjtVnXcoCxuq752dpgq9gPr8Jaav
+▲ Production  https://manufacturing-oee-platform-lq6jm6qjq-oee-platform-s-projects.vercel.app
+https://manufacturing-oee-platform-lq6jm6qjq-oee-platform-s-projects.vercel.appBuilding…
+Building…
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Downloading 308 deployment files...
+Restored build cache from previous deployment (5aMwceSHp9imoCYDEQKSnbaUCnjd)
+Running "vercel build"
+Vercel CLI 54.2.0
+WARNING! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+Installing dependencies...
+up to date in 646ms
+29 packages are looking for funding
+run `npm fund` for details
+Build Completed in /vercel/output [12s]
+Deploying outputs...
+Deployment completed
+Creating build cache...
+[2K[1A[2K[G▲ Production  https://manufacturing-oee-platform-lq6jm6qjq-oee-platform-s-projects.vercel.app
+Completing…
+▲ Aliased     https://manufacturing-oee-platform.vercel.app
+
+✓ Ready in 32s
+Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+> Tip: Run `npx plugins add vercel/vercel-plugin` to enhance your agent experience

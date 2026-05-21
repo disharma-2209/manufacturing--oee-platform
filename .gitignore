@@ -48,3 +48,5 @@ desktop.ini
 
 # Uploads
 backend/uploads/
+
+.vercel
