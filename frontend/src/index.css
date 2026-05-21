@@ -1,0 +1,269 @@
+/* ── Google font for T-Star Pro substitute ── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
+
+/* ── Enphase Visuelt — official licensed family ── */
+@font-face {
+  font-family: 'Enphase Visuelt';
+  src: url('/fonts/EnphaseVisuelt-Light.woff2') format('woff2'),
+       url('/fonts/EnphaseVisuelt-Light.woff') format('woff');
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Enphase Visuelt';
+  src: url('/fonts/EnphaseVisuelt-LightItalic.woff2') format('woff2'),
+       url('/fonts/EnphaseVisuelt-LightItalic.woff') format('woff');
+  font-weight: 300; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: 'Enphase Visuelt';
+  src: url('/fonts/EnphaseVisuelt-Regular.woff2') format('woff2'),
+       url('/fonts/EnphaseVisuelt-Regular.woff') format('woff');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Enphase Visuelt';
+  src: url('/fonts/EnphaseVisuelt-Italic.woff2') format('woff2'),
+       url('/fonts/EnphaseVisuelt-Italic.woff') format('woff');
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: 'Enphase Visuelt';
+  src: url('/fonts/EnphaseVisuelt-Medium.woff2') format('woff2'),
+       url('/fonts/EnphaseVisuelt-Medium.woff') format('woff');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Enphase Visuelt';
+  src: url('/fonts/EnphaseVisuelt-MediumItalic.woff2') format('woff2'),
+       url('/fonts/EnphaseVisuelt-MediumItalic.woff') format('woff');
+  font-weight: 500; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: 'Enphase Visuelt';
+  src: url('/fonts/EnphaseVisuelt-Bold.woff2') format('woff2'),
+       url('/fonts/EnphaseVisuelt-Bold.woff') format('woff');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Enphase Visuelt';
+  src: url('/fonts/EnphaseVisuelt-BoldItalic.woff2') format('woff2'),
+       url('/fonts/EnphaseVisuelt-BoldItalic.woff') format('woff');
+  font-weight: 700; font-style: italic; font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    font-family: 'Enphase Visuelt', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #FAF6EF;
+    color: #3C3C3C;
+  }
+}
+
+@layer components {
+
+  /* ── Tile cards ── */
+  .card {
+    @apply bg-bg-surface rounded-lg border border-border-col shadow-card;
+  }
+  .card-hover {
+    @apply transition-shadow duration-200 hover:shadow-card-hover;
+  }
+  .card-warm {
+    @apply bg-enph-warm-white rounded-lg border border-border-col shadow-card;
+  }
+  .card-dark {
+    @apply bg-enph-gray-01 rounded-lg shadow-card-md;
+    color: #FFFFFF;
+  }
+
+  /* ── Page layout ── */
+  .page-header  { @apply mb-6; }
+  .page-title {
+    font-family: 'Enphase Visuelt', sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    @apply text-text-primary;
+  }
+  .page-subtitle { @apply text-sm text-text-secondary mt-0.5; }
+
+  /* ── Section eyebrow (T-Star style) ── */
+  .section-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    @apply text-text-secondary;
+  }
+  .section-eyebrow-orange {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #EA6100;
+  }
+  /* legacy alias */
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    @apply text-text-secondary;
+  }
+
+  /* ── Buttons (always pill-shaped) ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 9999px;
+    font-family: 'Enphase Visuelt', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease-out, transform 0.1s ease-out, box-shadow 0.15s ease-out;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: #3C3C3C;
+    color: #FFFFFF;
+  }
+  .btn-primary:hover { background: #000000; }
+  .btn-accent {
+    background: #EA6100;
+    color: #FFFFFF;
+  }
+  .btn-accent:hover { background: #C75400; }
+  .btn-outline {
+    background: transparent;
+    color: #3C3C3C;
+    border: 1.5px solid #3C3C3C;
+  }
+  .btn-outline:hover { background: #F4F3F0; }
+  .btn-ghost {
+    background: rgba(255,255,255,0.85);
+    color: #3C3C3C;
+    backdrop-filter: blur(8px);
+  }
+  .btn-ghost:hover { background: #FFFFFF; }
+
+  /* ── Status badges ── */
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 9999px;
+  }
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .badge-success { background: rgba(67,158,88,0.10);  color: #439E58; }
+  .badge-success .badge-dot { background: #439E58; }
+  .badge-warning { background: rgba(255,208,44,0.18); color: #3C3C3C; }
+  .badge-warning .badge-dot { background: #FFD02C; }
+  .badge-danger  { background: rgba(222,33,0,0.08);   color: #DE2100; }
+  .badge-danger  .badge-dot { background: #DE2100; }
+  .badge-info    { background: rgba(44,67,111,0.10);  color: #2C436F; }
+  .badge-info    .badge-dot { background: #2C436F; }
+  .badge-neutral { background: #F4F3F0; color: #3C3C3C; }
+  .badge-neutral .badge-dot { background: #7D7D7D; }
+  .badge-orange  { background: rgba(234,97,0,0.10);   color: #EA6100; }
+  .badge-orange  .badge-dot { background: #EA6100; }
+
+  /* ── Form labels (T-Star style) ── */
+  .form-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #7D7D7D;
+    display: block;
+    margin-bottom: 6px;
+  }
+  /* legacy alias */
+  .label-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #7D7D7D;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* ── Form inputs ── */
+  .form-input {
+    background: #FFFFFF;
+    border: 1px solid #DCDCD6;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: 'Enphase Visuelt', sans-serif;
+    font-size: 14px;
+    color: #3C3C3C;
+    width: 100%;
+    transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: #EA6100;
+    box-shadow: 0 0 0 3px rgba(234,97,0,0.15);
+  }
+  .form-input.error { border-color: #DE2100; }
+  .form-input.error:focus { box-shadow: 0 0 0 3px rgba(222,33,0,0.12); }
+
+  /* ── KPI number ── */
+  .kpi-number {
+    font-family: 'Enphase Visuelt', sans-serif;
+    font-size: 2.25rem;
+    font-weight: 400;
+    color: #3C3C3C;
+  }
+  .muted-text { @apply text-xs text-text-muted; }
+
+  /* ── Skeleton loader ── */
+  .skeleton { @apply bg-enph-gray-03 rounded animate-skeleton; }
+}
+
+/* Custom scrollbar — warm Enphase tones */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F4F3F0; }
+::-webkit-scrollbar-thumb { background: #DCDCD6; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #7D7D7D; }
+
+/* Recharts tooltip */
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* SSE streaming text */
+.streaming-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}

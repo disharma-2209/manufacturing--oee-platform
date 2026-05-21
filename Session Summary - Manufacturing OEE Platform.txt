@@ -1,0 +1,178 @@
+MANUFACTURING OEE PLATFORM — SESSION SUMMARY
+==============================================
+Date: April 2026
+Project: manufacturing-oee-platform
+Bitbucket Repo: https://bitbucket.org/EnphaseEmbedded/enphase-ai-ops-hub.git
+
+
+==============================================================
+OBJECTIVE
+==============================================================
+Restore the local application to the state it was in before a
+problematic Git push attempt to Bitbucket. Ensure all recent
+custom changes were present and correct in the local working
+directory. The user explicitly wanted to cancel the Git migration
+and restore the local host.
+
+
+==============================================================
+WORK DONE — PHASE 1: INITIAL RESTORE
+==============================================================
+
+1. Identified that the local repo was in an inconsistent state
+   after a Git push attempt. Key files had been reverted.
+
+2. Created a temporary Git repo (_temp_restore) and fetched the
+   feature/manufacturing-oee-platform branch from Bitbucket.
+
+3. Restored all frontend and backend files from that branch:
+   - frontend/src/App.tsx
+   - frontend/src/index.css
+   - frontend/index.html
+   - frontend/tailwind.config.js
+   - frontend/src/lib/api-client.ts
+   - frontend/src/types/index.ts
+   - frontend/src/pages/Dashboard.tsx
+   - frontend/src/pages/OEEExplorer.tsx
+   - frontend/src/pages/AIInsights.tsx
+   - frontend/src/pages/CorrelationEngine.tsx
+   - frontend/src/pages/DowntimeAnalysis.tsx
+   - frontend/src/pages/DataUpload.tsx
+   - frontend/src/pages/Settings.tsx
+   - frontend/src/pages/Login.tsx
+   - frontend/src/components/layout/Sidebar.tsx
+   - frontend/src/components/layout/Header.tsx
+   - frontend/src/components/shared/AIInsightCard.tsx
+   - backend/src/index.ts
+   - backend/src/types/index.ts
+   - backend/src/services/ai-service.ts
+   - backend/src/services/excel-parser.ts
+   - backend/src/services/oee-engine.ts
+   - backend/src/routes/ai.ts
+   - backend/src/routes/analyze.ts
+   - backend/src/routes/upload.ts
+   - backend/src/routes/auth.ts
+   - backend/src/routes/settings.ts
+   - backend/src/db/schema.sql
+   - backend/src/db/init.ts
+
+4. Cleaned up the temporary restore folder.
+
+
+==============================================================
+WORK DONE — PHASE 2: CUSTOM EDITS RE-APPLIED
+==============================================================
+
+EDIT 1: backend/src/services/ai-service.ts
+- Added facilityOEEpct variable that pre-calculates facility OEE
+  from context.summary.avgOEE as a formatted percentage string.
+- Updated the weekly_summary prompt to inject this value so the
+  AI is instructed to use the exact pre-calculated OEE value in
+  keyMetric, not re-derive it from line-level data.
+- This ensures the AI Insights panel always shows the same OEE
+  value as the KPI card on the dashboard.
+
+EDIT 2: frontend/src/components/shared/AIInsightCard.tsx
+- Added ThumbsUp, ThumbsDown, CircleCheck imports from lucide-react.
+- Added useState import from React.
+- Added dashboard?: boolean and overrideOEE?: string props to
+  AIInsightCardProps interface.
+- Updated WeeklySummaryCard to accept dashboard and overrideOEE props.
+- When dashboard=true, renders a compact 2-column grid showing
+  highlights (green) and concerns (red) with colour-coded badges.
+- Uses overrideOEE to display the real facility OEE instead of
+  the AI-generated keyMetric string.
+- Updated ActionPlanCard to accept dashboard prop and render a
+  compact list with ThumbsUp/ThumbsDown Accept/Reject buttons.
+- Threaded both props down through the AIInsightCard export.
+
+EDIT 3: frontend/src/pages/Dashboard.tsx
+- Passed overrideOEE={...} to AIInsightCard for weekly_summary
+  analysis type, calculated as (data.overall.oee * 100).toFixed(1)%
+- Fixed null guard on a.top3?.length (added optional chaining).
+
+
+==============================================================
+WORK DONE — PHASE 3: TYPESCRIPT FIXES
+==============================================================
+
+- frontend/src/types/index.ts:
+  Added missing OEESettings fields:
+    downtime_threshold_warning?: number
+    downtime_threshold_critical?: number
+    mttr_target?: number
+    mtbf_target?: number
+
+  Added missing interfaces for UserManagement.tsx:
+    ManagedUser { id, username, email, role, is_active,
+                  created_at, last_login?, full_name? }
+    UserRequest  { id, username, email, full_name, role,
+                  requested_role, status, requested_at,
+                  created_at, reviewed_at?, reviewed_by?,
+                  reason?, rejection_reason? }
+
+- frontend/src/lib/api-client.ts:
+  Added api.patch() method (PATCH HTTP verb) needed by
+  UserManagement.tsx.
+
+- Verified with: npx tsc --noEmit → 0 errors.
+
+
+==============================================================
+WORK DONE — PHASE 4: STARTUP SCRIPTS
+==============================================================
+
+Recreated / updated the following scripts at project root:
+
+Start App.bat
+  - Launches start-app.ps1 via PowerShell.
+
+start-app.ps1
+  - Locates Node.js automatically (WinGet, common paths, PATH).
+  - Copies .env from .env.example if missing.
+  - Installs npm dependencies if node_modules missing.
+  - Kills any stale processes on ports 3001, 5174, 5176, 5178.
+  - Clears Vite cache (node_modules/.vite) before each start.
+  - Starts backend on port 3001 (npm run dev).
+  - Waits for backend health check at /api/health.
+  - Starts frontend on port 5178 with --force flag (npx vite).
+  - Waits for frontend to be reachable.
+  - Opens http://localhost:5178 in default browser.
+  - Logs backend and frontend output to logs/ folder.
+
+Stop App.bat
+  - Kills processes on ports 3001, 5174, 5176, 5178.
+
+
+==============================================================
+WORK DONE — PHASE 5: VITE CACHE FIXES
+==============================================================
+
+Persistent issue: Vite was serving stale cached modules even
+after files were restored, causing "@/lib/api-client" import
+errors in the browser overlay.
+
+Fix applied:
+- Manually deleted node_modules/.vite folder.
+- Restarted Vite with --force flag on a fresh port (5178).
+- Updated start-app.ps1 to always delete Vite cache on startup.
+
+
+==============================================================
+FINAL STATE
+==============================================================
+
+Servers running:
+  Backend:  http://localhost:3001  (Node.js / ts-node-dev)
+  Frontend: http://localhost:5178  (Vite 5.4.21, --force)
+
+TypeScript: 0 errors (npx tsc --noEmit)
+
+Key custom features active:
+  - Facility OEE injected into AI weekly summary prompt
+  - Dashboard AI Insights panel shows overrideOEE from KPI card
+  - Dashboard branch rendering in AIInsightCard (highlights/concerns)
+  - Accept/Reject buttons on Action Plan card
+  - All types correctly defined for Settings and UserManagement pages
+
+Nothing pushed to Bitbucket. All changes are local only.
