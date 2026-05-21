@@ -15,5 +15,11 @@
     { "src": "^/assets/(.*)", "dest": "/frontend/dist/assets/$1" },
     { "src": "^/fonts/(.*)", "dest": "/frontend/dist/fonts/$1" },
     { "src": "/(.*)", "dest": "/frontend/dist/index.html" }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "VERCEL": "1",
+    "DB_PATH": "/tmp/oee_platform.db",
+    "JWT_SECRET": "oee-uat-vercel-2026"
+  }
 }
