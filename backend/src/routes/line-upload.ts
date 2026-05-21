@@ -12,7 +12,7 @@ import { trackUsage } from '../middleware/usageTracker';
 
 const router = Router();
 
-const uploadDir = path.join(process.cwd(), 'uploads');
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({

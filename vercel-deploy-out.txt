@@ -1,32 +1,33 @@
 Retrieving project…
 Deploying oee-platform-s-projects/manufacturing-oee-platform
-Uploading [--------------------] (0.0B/295B)
-Uploading [=====---------------] (83.0B/295B)
-Uploading [====================] (295.0B/295B)
-  Inspect     https://vercel.com/oee-platform-s-projects/manufacturing-oee-platform/HjtVnXcoCxuq752dpgq9gPr8Jaav
-▲ Production  https://manufacturing-oee-platform-lq6jm6qjq-oee-platform-s-projects.vercel.app
-https://manufacturing-oee-platform-lq6jm6qjq-oee-platform-s-projects.vercel.appBuilding…
+Uploading [--------------------] (0.0B/2.3KB)
+Uploading [======--------------] (774.0B/2.3KB)
+Uploading [====================] (2.3KB/2.3KB)
+  Inspect     https://vercel.com/oee-platform-s-projects/manufacturing-oee-platform/7BKLUyznCb1Y7z5m2bc6ToGZKGzT
+▲ Production  https://manufacturing-oee-platform-euyd0pkt8-oee-platform-s-projects.vercel.app
+https://manufacturing-oee-platform-euyd0pkt8-oee-platform-s-projects.vercel.appBuilding…
 Building…
 Running build in Washington, D.C., USA (East) – iad1
 Build machine configuration: 2 cores, 8 GB
 Retrieving list of deployment files...
-Downloading 308 deployment files...
-Restored build cache from previous deployment (5aMwceSHp9imoCYDEQKSnbaUCnjd)
+Downloading 312 deployment files...
+Restored build cache from previous deployment (H5Qejgwv3gEvS6ubF7D5jzDuzetn)
 Running "vercel build"
 Vercel CLI 54.2.0
 WARNING! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
 Installing dependencies...
-up to date in 646ms
-29 packages are looking for funding
+npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+added 8 packages in 2s
+32 packages are looking for funding
 run `npm fund` for details
-Build Completed in /vercel/output [12s]
+Build Completed in /vercel/output [13s]
 Deploying outputs...
 Deployment completed
 Creating build cache...
-[2K[1A[2K[G▲ Production  https://manufacturing-oee-platform-lq6jm6qjq-oee-platform-s-projects.vercel.app
+[2K[1A[2K[G▲ Production  https://manufacturing-oee-platform-euyd0pkt8-oee-platform-s-projects.vercel.app
 Completing…
 ▲ Aliased     https://manufacturing-oee-platform.vercel.app
 
-✓ Ready in 32s
+✓ Ready in 29s
 Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
 > Tip: Run `npx plugins add vercel/vercel-plugin` to enhance your agent experience

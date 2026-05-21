@@ -15,7 +15,7 @@ const audit_1 = require("../services/audit");
 const logger_1 = require("../utils/logger");
 const usageTracker_1 = require("../middleware/usageTracker");
 const router = (0, express_1.Router)();
-const uploadDir = path_1.default.join(process.cwd(), 'uploads');
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : path_1.default.join(process.cwd(), 'uploads');
 if (!fs_1.default.existsSync(uploadDir))
     fs_1.default.mkdirSync(uploadDir, { recursive: true });
 const storage = multer_1.default.diskStorage({

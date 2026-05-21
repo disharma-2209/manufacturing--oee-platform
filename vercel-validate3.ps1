@@ -1,4 +1,4 @@
-$baseUrl = "https://manufacturing-oee-platform-pt573spqm-oee-platform-s-projects.vercel.app"
+$baseUrl = "https://manufacturing-oee-platform-euyd0pkt8-oee-platform-s-projects.vercel.app"
 
 # Check diag first
 $diag = Invoke-WebRequest -Uri "$baseUrl/api/diag" -UseBasicParsing -TimeoutSec 20
