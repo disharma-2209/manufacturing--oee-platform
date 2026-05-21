@@ -34,49 +34,138 @@ function createDatabase(dbPath) {
             },
         };
     }
-    catch (_) {
+    catch (betterSqliteErr) {
+        logger_1.logger.warn('better-sqlite3 unavailable, trying node:sqlite', { error: String(betterSqliteErr) });
         // Fallback to Node 24 built-in node:sqlite
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { DatabaseSync } = require('node:sqlite');
-        const raw = new DatabaseSync(dbPath);
-        return {
-            prepare(sql) {
-                return {
-                    get(...params) {
-                        const stmt = raw.prepare(sql);
-                        stmt.setReadBigInts(false);
-                        const rows = stmt.all(...params);
-                        return rows[0];
-                    },
-                    all(...params) {
-                        const stmt = raw.prepare(sql);
-                        stmt.setReadBigInts(false);
-                        return stmt.all(...params);
-                    },
-                    run(...params) {
-                        const stmt = raw.prepare(sql);
-                        stmt.setReadBigInts(false);
-                        const r = stmt.run(...params);
-                        return { lastInsertRowid: r.lastInsertRowid, changes: r.changes };
-                    },
-                };
-            },
-            exec(sql) { raw.exec(sql); },
-            pragma(pragma) { raw.exec(`PRAGMA ${pragma}`); },
-            transaction(fn) {
-                return (arg) => {
-                    raw.exec('BEGIN');
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { DatabaseSync } = require('node:sqlite');
+            const raw = new DatabaseSync(dbPath);
+            return {
+                prepare(sql) {
+                    return {
+                        get(...params) {
+                            const stmt = raw.prepare(sql);
+                            stmt.setReadBigInts(false);
+                            const rows = stmt.all(...params);
+                            return rows[0];
+                        },
+                        all(...params) {
+                            const stmt = raw.prepare(sql);
+                            stmt.setReadBigInts(false);
+                            return stmt.all(...params);
+                        },
+                        run(...params) {
+                            const stmt = raw.prepare(sql);
+                            stmt.setReadBigInts(false);
+                            const r = stmt.run(...params);
+                            return { lastInsertRowid: r.lastInsertRowid, changes: r.changes };
+                        },
+                    };
+                },
+                exec(sql) { raw.exec(sql); },
+                pragma(pragma) { raw.exec(`PRAGMA ${pragma}`); },
+                transaction(fn) {
+                    return (arg) => {
+                        raw.exec('BEGIN');
+                        try {
+                            fn(arg);
+                            raw.exec('COMMIT');
+                        }
+                        catch (e) {
+                            raw.exec('ROLLBACK');
+                            throw e;
+                        }
+                    };
+                },
+            };
+        }
+        catch (nodeSqliteErr) {
+            logger_1.logger.warn('node:sqlite unavailable, using sql.js in-memory', { error: String(nodeSqliteErr) });
+            // Final fallback: sql.js (pure JS, works everywhere including Vercel)
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const initSqlJs = require('sql.js');
+            // sql.js is async — we return a sync-compatible wrapper using a pre-initialized DB
+            // Store data in /tmp as binary file if possible
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let sqlDb;
+            const initSync = () => {
+                // This is called synchronously but sql.js init is async —
+                // we must initialize it before use via initDb() which is async
+                throw new Error('sql.js not yet initialized — call initDb() first');
+            };
+            // Attach a pending promise that initDb will await
+            createDatabase.sqlJsPromise =
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                initSqlJs().then((SQL) => {
+                    let data = null;
                     try {
-                        fn(arg);
-                        raw.exec('COMMIT');
+                        if (fs_1.default.existsSync(dbPath))
+                            data = fs_1.default.readFileSync(dbPath);
                     }
-                    catch (e) {
-                        raw.exec('ROLLBACK');
-                        throw e;
-                    }
-                };
-            },
-        };
+                    catch (_) { /* ok */ }
+                    sqlDb = data ? new SQL.Database(data) : new SQL.Database();
+                    const save = () => {
+                        try {
+                            const buf = sqlDb.export();
+                            fs_1.default.mkdirSync(path_1.default.dirname(dbPath), { recursive: true });
+                            fs_1.default.writeFileSync(dbPath, Buffer.from(buf));
+                        }
+                        catch (_) { /* /tmp may fail on some serverless */ }
+                    };
+                    const compat = {
+                        prepare(sql) {
+                            return {
+                                get(...params) {
+                                    const stmt = sqlDb.prepare(sql);
+                                    stmt.bind(params);
+                                    const row = stmt.step() ? stmt.getAsObject() : undefined;
+                                    stmt.free();
+                                    return row;
+                                },
+                                all(...params) {
+                                    const stmt = sqlDb.prepare(sql);
+                                    stmt.bind(params);
+                                    const rows = [];
+                                    while (stmt.step())
+                                        rows.push(stmt.getAsObject());
+                                    stmt.free();
+                                    return rows;
+                                },
+                                run(...params) {
+                                    sqlDb.run(sql, params);
+                                    save();
+                                    return { lastInsertRowid: sqlDb.exec('SELECT last_insert_rowid()')[0]?.values[0][0] ?? 0, changes: 0 };
+                                },
+                            };
+                        },
+                        exec(sql) { sqlDb.run(sql); save(); },
+                        pragma(_p) { },
+                        transaction(fn) {
+                            return (arg) => {
+                                sqlDb.run('BEGIN');
+                                try {
+                                    fn(arg);
+                                    sqlDb.run('COMMIT');
+                                    save();
+                                }
+                                catch (e) {
+                                    sqlDb.run('ROLLBACK');
+                                    throw e;
+                                }
+                            };
+                        },
+                    };
+                    return compat;
+                });
+            // Return a placeholder — initDb will replace db with the resolved value
+            return {
+                prepare: initSync,
+                exec: () => { throw new Error('sql.js not ready'); },
+                pragma: () => { },
+                transaction: () => () => { throw new Error('sql.js not ready'); },
+            };
+        }
     }
 }
 let db;
@@ -93,6 +182,13 @@ async function initDb() {
         fs_1.default.mkdirSync(dbDir, { recursive: true });
     }
     db = createDatabase(dbPath);
+    // If sql.js was used (async fallback), wait for it to initialize
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sqlJsPromise = createDatabase.sqlJsPromise;
+    if (sqlJsPromise) {
+        db = await sqlJsPromise;
+        delete createDatabase.sqlJsPromise;
+    }
     db.pragma('journal_mode = WAL');
     db.pragma('foreign_keys = ON');
     // schema.sql lives in src/db/ — resolve from both src and dist locations
