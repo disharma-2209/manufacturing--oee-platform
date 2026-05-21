@@ -4,12 +4,9 @@ import bcrypt from 'bcryptjs';
 import { logger } from '../utils/logger';
 
 // ---------------------------------------------------------------------------
-// Compatibility shim: wraps Node 24's built-in `node:sqlite` to expose the
-// same synchronous API as `better-sqlite3` (prepare/get/all/run/transaction).
+// Database layer using better-sqlite3 (works on Node 18+ and Vercel).
+// Falls back to Node 24's built-in node:sqlite if better-sqlite3 is missing.
 // ---------------------------------------------------------------------------
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { DatabaseSync } = require('node:sqlite');
 
 interface StmtResult {
   lastInsertRowid: number | bigint;
@@ -29,48 +26,66 @@ interface CompatDb {
   transaction<T>(fn: (arg: T) => void): (arg: T) => void;
 }
 
-function wrapDb(raw: InstanceType<typeof DatabaseSync>): CompatDb {
-  return {
-    prepare(sql: string): PreparedStatement {
-      return {
-        get(...params: unknown[]) {
-          const stmt = raw.prepare(sql);
-          stmt.setReadBigInts(false);
-          const rows = stmt.all(...params) as Record<string, unknown>[];
-          return rows[0];
-        },
-        all(...params: unknown[]) {
-          const stmt = raw.prepare(sql);
-          stmt.setReadBigInts(false);
-          return stmt.all(...params) as Record<string, unknown>[];
-        },
-        run(...params: unknown[]): StmtResult {
-          const stmt = raw.prepare(sql);
-          stmt.setReadBigInts(false);
-          const r = stmt.run(...params) as { lastInsertRowid: number; changes: number };
-          return { lastInsertRowid: r.lastInsertRowid, changes: r.changes };
-        },
-      };
-    },
-    exec(sql: string) {
-      raw.exec(sql);
-    },
-    pragma(pragma: string) {
-      raw.exec(`PRAGMA ${pragma}`);
-    },
-    transaction<T>(fn: (arg: T) => void): (arg: T) => void {
-      return (arg: T) => {
-        raw.exec('BEGIN');
-        try {
-          fn(arg);
-          raw.exec('COMMIT');
-        } catch (e) {
-          raw.exec('ROLLBACK');
-          throw e;
-        }
-      };
-    },
-  };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createDatabase(dbPath: string): CompatDb {
+  // Try better-sqlite3 first (works on Vercel & most environments)
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Database = require('better-sqlite3');
+    const raw = new Database(dbPath);
+    return {
+      prepare(sql: string): PreparedStatement {
+        const stmt = raw.prepare(sql);
+        return {
+          get(...params: unknown[]) { return stmt.get(...params); },
+          all(...params: unknown[]) { return stmt.all(...params); },
+          run(...params: unknown[]): StmtResult { return stmt.run(...params); },
+        };
+      },
+      exec(sql: string) { raw.exec(sql); },
+      pragma(pragma: string) { raw.pragma(pragma); },
+      transaction<T>(fn: (arg: T) => void): (arg: T) => void {
+        return raw.transaction(fn);
+      },
+    };
+  } catch (_) {
+    // Fallback to Node 24 built-in node:sqlite
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { DatabaseSync } = require('node:sqlite');
+    const raw = new DatabaseSync(dbPath);
+    return {
+      prepare(sql: string): PreparedStatement {
+        return {
+          get(...params: unknown[]) {
+            const stmt = raw.prepare(sql);
+            stmt.setReadBigInts(false);
+            const rows = stmt.all(...params) as Record<string, unknown>[];
+            return rows[0];
+          },
+          all(...params: unknown[]) {
+            const stmt = raw.prepare(sql);
+            stmt.setReadBigInts(false);
+            return stmt.all(...params) as Record<string, unknown>[];
+          },
+          run(...params: unknown[]): StmtResult {
+            const stmt = raw.prepare(sql);
+            stmt.setReadBigInts(false);
+            const r = stmt.run(...params) as { lastInsertRowid: number; changes: number };
+            return { lastInsertRowid: r.lastInsertRowid, changes: r.changes };
+          },
+        };
+      },
+      exec(sql: string) { raw.exec(sql); },
+      pragma(pragma: string) { raw.exec(`PRAGMA ${pragma}`); },
+      transaction<T>(fn: (arg: T) => void): (arg: T) => void {
+        return (arg: T) => {
+          raw.exec('BEGIN');
+          try { fn(arg); raw.exec('COMMIT'); }
+          catch (e) { raw.exec('ROLLBACK'); throw e; }
+        };
+      },
+    };
+  }
 }
 
 let db: CompatDb;
@@ -90,13 +105,16 @@ export async function initDb(): Promise<void> {
     fs.mkdirSync(dbDir, { recursive: true });
   }
 
-  const raw = new DatabaseSync(dbPath);
-  db = wrapDb(raw);
+  db = createDatabase(dbPath);
 
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
 
-  const schemaPath = path.join(__dirname, 'schema.sql');
+  // schema.sql lives in src/db/ — resolve from both src and dist locations
+  let schemaPath = path.join(__dirname, 'schema.sql');
+  if (!fs.existsSync(schemaPath)) {
+    schemaPath = path.join(__dirname, '../../src/db/schema.sql');
+  }
   const schema = fs.readFileSync(schemaPath, 'utf8');
   db.exec(schema);
 

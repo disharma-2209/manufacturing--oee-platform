@@ -109,19 +109,23 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: 'Internal server error' });
 });
 
-async function start() {
-  try {
-    await initDb();
-    app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`);
-      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    });
-  } catch (err) {
-    logger.error('Failed to start server', { err });
-    process.exit(1);
-  }
-}
+// Export for Vercel serverless
+export { app, initDb };
 
-start();
+// Only start the server when running directly (not imported by Vercel)
+if (!process.env.VERCEL) {
+  (async () => {
+    try {
+      await initDb();
+      app.listen(PORT, () => {
+        logger.info(`Server running on port ${PORT}`);
+        logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      });
+    } catch (err) {
+      logger.error('Failed to start server', { err });
+      process.exit(1);
+    }
+  })();
+}
 
 
