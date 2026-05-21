@@ -1,0 +1,1 @@
+{"version":3,"file":"usageTracker.d.ts","sourceRoot":"","sources":["../../src/middleware/usageTracker.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAG1D,wBAAgB,UAAU,CAAC,SAAS,EAAE,MAAM,EAAE,SAAS,CAAC,EAAE,CAAC,GAAG,EAAE,OAAO,KAAK,MAAM,IACxE,KAAK,OAAO,EAAE,KAAK,QAAQ,EAAE,MAAM,YAAY,KAAG,IAAI,CA0B/D"}

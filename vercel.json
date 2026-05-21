@@ -1,21 +1,21 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm install && npm run build && cd ../backend && npm install && npm run build",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "echo 'skip default install'",
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "backend/dist/**,backend/src/db/schema.sql,backend/node_modules/**"
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["backend/dist/**", "backend/src/db/schema.sql"]
+      }
+    },
+    {
+      "src": "frontend/dist/**",
+      "use": "@vercel/static"
     }
-  },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
-  "env": {
-    "NODE_ENV": "production",
-    "VERCEL": "1",
-    "DB_PATH": "/tmp/oee_platform.db",
-    "JWT_SECRET": "oee-uat-vercel-2026"
-  }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/(.*)", "dest": "/frontend/dist/$1" },
+    { "src": "/", "dest": "/frontend/dist/index.html" }
+  ]
 }
