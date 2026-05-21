@@ -7,7 +7,7 @@ $bodyObj = @{
     name = "manufacturing-oee-platform"
     gitSource = @{
         type = "github"
-        repoId = "978283148"
+        repoId = "1245383397"
         ref = "main"
     }
     target = "production"
