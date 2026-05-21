@@ -94,7 +94,7 @@ app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 // ── Serve frontend static build (for production / Railway deployment) ────
-const frontendDist = path_1.default.resolve(__dirname, '../../frontend/dist');
+const frontendDist = process.env.FRONTEND_DIST || path_1.default.resolve(__dirname, '../../frontend/dist');
 if (fs_1.default.existsSync(frontendDist)) {
     app.use(express_1.default.static(frontendDist));
     // SPA fallback: any non-API route serves index.html
