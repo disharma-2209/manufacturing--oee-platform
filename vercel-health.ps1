@@ -1,4 +1,4 @@
-$baseUrl = "https://manufacturing-oee-platform-qly9khq5t-oee-platform-s-projects.vercel.app"
+$baseUrl = "https://manufacturing-oee-platform-fcpfsd99m-oee-platform-s-projects.vercel.app"
 
 $paths = @("/api/health", "/", "/api/auth/login")
 foreach ($p in $paths) {
